@@ -1,101 +1,64 @@
-// Authentication Context
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import type { AuthContextType, User, LoginCredentials, RegisterData } from '@/types'
-import { authApi } from '@/lib/api/auth'
-import { setAuthToken, getAuthToken } from '@/lib/api-client'
+// Authentication Context with React Query
+import React, { useCallback } from 'react'
+import type { AuthContextType, LoginCredentials, RegisterData } from '@/types'
 import { hasPermission as checkPermission } from '@/config/permissions'
 import type { Resource, Action } from '@/config/permissions'
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+import { useCurrentUser, useLogin, useRegister, useLogout } from '@/hooks/queries/useAuth'
+import { getAccessToken } from '@/lib/api-client'
+import { AuthContext } from './auth-context'
 
 interface AuthProviderProps {
   children: React.ReactNode
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  // React Query hooks for auth state
+  const { data: user, isLoading } = useCurrentUser()
+  const loginMutation = useLogin()
+  const registerMutation = useRegister()
+  const logoutMutation = useLogout()
+
+  // Get access token from localStorage
+  const token = getAccessToken()
 
   // Check if user is authenticated
   const isAuthenticated = !!user && !!token
 
-  // Restore session on mount
-  useEffect(() => {
-    const restoreSession = async () => {
-      try {
-        // Attempt to get current user (will use refresh token if access token expired)
-        const currentUser = await authApi.me()
+  // Login function - wraps mutation to provide Promise-based API
+  const login = useCallback(
+    async (credentials: LoginCredentials) => {
+      return new Promise<void>((resolve, reject) => {
+        loginMutation.mutate(credentials, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error),
+        })
+      })
+    },
+    [loginMutation]
+  )
 
-        setUser(currentUser)
+  // Register function - wraps mutation to provide Promise-based API
+  const register = useCallback(
+    async (data: RegisterData) => {
+      return new Promise<void>((resolve, reject) => {
+        registerMutation.mutate(data, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error),
+        })
+      })
+    },
+    [registerMutation]
+  )
 
-        // Token will be set by interceptor after refresh
-        const currentToken = getAuthToken()
-        setToken(currentToken)
-      } catch (error) {
-        // Session restore failed - user needs to log in
-        setUser(null)
-        setToken(null)
-        setAuthToken(null)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    restoreSession()
-  }, [])
-
-  // Listen for logout events from API client
-  useEffect(() => {
-    const handleLogout = () => {
-      setUser(null)
-      setToken(null)
-      setAuthToken(null)
-    }
-
-    window.addEventListener('auth:logout', handleLogout)
-    return () => window.removeEventListener('auth:logout', handleLogout)
-  }, [])
-
-  // Login function
-  const login = useCallback(async (credentials: LoginCredentials) => {
-    try {
-      const response = await authApi.login(credentials)
-
-      setUser(response.user)
-      setToken(response.token)
-      setAuthToken(response.token)
-    } catch (error) {
-      throw error
-    }
-  }, [])
-
-  // Register function
-  const register = useCallback(async (data: RegisterData) => {
-    try {
-      const response = await authApi.register(data)
-
-      setUser(response.user)
-      setToken(response.token)
-      setAuthToken(response.token)
-    } catch (error) {
-      throw error
-    }
-  }, [])
-
-  // Logout function
+  // Logout function - wraps mutation to provide Promise-based API
   const logout = useCallback(async () => {
-    try {
-      await authApi.logout()
-    } catch (error) {
-      // Continue with logout even if API call fails
-      console.error('Logout API error:', error)
-    } finally {
-      setUser(null)
-      setToken(null)
-      setAuthToken(null)
-    }
-  }, [])
+    return new Promise<void>((resolve, reject) => {
+      logoutMutation.mutate(undefined, {
+        onSuccess: () => resolve(),
+        onError: (error) => reject(error),
+      })
+    })
+  }, [logoutMutation])
 
   // Check if user has permission
   const hasPermission = useCallback(
@@ -107,7 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   )
 
   const value: AuthContextType = {
-    user,
+    user: user || null,
     token,
     isAuthenticated,
     isLoading,
@@ -118,13 +81,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-// Hook to use auth context
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
 }

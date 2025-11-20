@@ -10,39 +10,63 @@ export const ROUTES = {
   // Admin routes
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
+    PROFILE: '/admin/profile',
+    SETTINGS: '/admin/settings',
     PROPERTIES: {
-      LIST: '/admin/properties',
+      INDEX: '/admin/properties',// Alias for backward compatibility
       NEW: '/admin/properties/new',
       DETAIL: '/admin/properties/:id',
       EDIT: '/admin/properties/:id/edit',
     },
+    BUILDINGS: {
+      INDEX: '/admin/buildings',
+      NEW: '/admin/buildings/new',
+      DETAIL: '/admin/buildings/:id',
+      EDIT: '/admin/buildings/:id/edit',
+    },
+    UNITS: {
+      INDEX: '/admin/units',
+      NEW: '/admin/units/new',
+      DETAIL: '/admin/units/:id',
+      EDIT: '/admin/units/:id/edit',
+      PHOTOS: '/admin/units/:id/photos',
+    },
+    LEASES: {
+      INDEX: '/admin/leases',
+      NEW: '/admin/leases/new',
+      DETAIL: '/admin/leases/:id',
+      EDIT: '/admin/leases/:id/edit',
+      PENDING: '/admin/leases/pending',
+      APPROVE: '/admin/leases/:id/approve',
+    },
     TENANTS: {
-      LIST: '/admin/tenants',
+      INDEX: '/admin/tenants',
       NEW: '/admin/tenants/new',
       DETAIL: '/admin/tenants/:id',
       EDIT: '/admin/tenants/:id/edit',
     },
+    INVOICES: {
+      INDEX: '/admin/invoices',
+      NEW: '/admin/invoices/new',
+      DETAIL: '/admin/invoices/:id',
+    },
     PAYMENTS: {
-      LIST: '/admin/payments',
+      INDEX: '/admin/payments',
       NEW: '/admin/payments/new',
       DETAIL: '/admin/payments/:id',
     },
     MAINTENANCE: {
-      LIST: '/admin/maintenance',
+      INDEX: '/admin/maintenance',
       NEW: '/admin/maintenance/new',
       DETAIL: '/admin/maintenance/:id',
       EDIT: '/admin/maintenance/:id/edit',
+      ASSIGN: '/admin/maintenance/:id/assign',
     },
     REPORTS: {
+      INDEX: '/admin/reports',
       FINANCIAL: '/admin/reports/financial',
       OCCUPANCY: '/admin/reports/occupancy',
       MAINTENANCE: '/admin/reports/maintenance',
-    },
-    SETTINGS: {
-      USERS: '/admin/settings/users',
-      ROLES: '/admin/settings/roles',
-      EMAIL_TEMPLATES: '/admin/settings/email-templates',
-      GENERAL: '/admin/settings/general',
     },
   },
 

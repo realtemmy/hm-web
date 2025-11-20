@@ -1,6 +1,6 @@
 // Role-based Route component
 import { Navigate, Outlet } from 'react-router'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { ROUTES } from '@/config/routes'
 import type { UserRole } from '@/types'
 

@@ -7,6 +7,15 @@ import { ROUTES } from '@/config/routes'
 // Auth pages
 import { Login, Register, ForgotPassword, ResetPassword } from '@/pages/auth'
 
+// Layouts
+import { AdminLayout } from '@/layouts/AdminLayout'
+
+// Admin pages
+import { AdminDashboard } from '@/pages/admin/Dashboard'
+import { PropertiesList } from '@/pages/admin/properties/PropertiesList'
+import { PropertyForm } from '@/pages/admin/properties/PropertyForm'
+import { PropertyDetail } from '@/pages/admin/properties/PropertyDetail'
+
 // Placeholder components for pages not yet implemented
 const PlaceholderPage = ({ title }: { title: string }) => (
   <div className="flex h-screen items-center justify-center">
@@ -30,50 +39,52 @@ export function AppRouter() {
       {/* Admin routes - protected and role-based */}
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleBasedRoute allowedRoles={['ADMIN']} />}>
-          <Route path={ROUTES.ADMIN.DASHBOARD} element={<PlaceholderPage title="Landlord Dashboard" />} />
+          <Route element={<AdminLayout />}>
+            <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
 
-          {/* Properties */}
-          <Route path={ROUTES.ADMIN.PROPERTIES.LIST} element={<PlaceholderPage title="My Properties" />} />
-          <Route path={ROUTES.ADMIN.PROPERTIES.NEW} element={<PlaceholderPage title="Add Property" />} />
-          <Route path={ROUTES.ADMIN.PROPERTIES.DETAIL} element={<PlaceholderPage title="Property Details" />} />
-          <Route path={ROUTES.ADMIN.PROPERTIES.EDIT} element={<PlaceholderPage title="Edit Property" />} />
+            {/* Properties */}
+            <Route path={ROUTES.ADMIN.PROPERTIES.INDEX} element={<PropertiesList />} />
+            <Route path={ROUTES.ADMIN.PROPERTIES.NEW} element={<PropertyForm />} />
+            <Route path={ROUTES.ADMIN.PROPERTIES.DETAIL} element={<PropertyDetail />} />
+            <Route path={ROUTES.ADMIN.PROPERTIES.EDIT} element={<PropertyForm />} />
 
-          {/* Buildings */}
-          <Route path="/admin/buildings" element={<PlaceholderPage title="Buildings" />} />
-          <Route path="/admin/buildings/new" element={<PlaceholderPage title="Add Building" />} />
-          <Route path="/admin/buildings/:id" element={<PlaceholderPage title="Building Details" />} />
-          <Route path="/admin/buildings/:id/edit" element={<PlaceholderPage title="Edit Building" />} />
+            {/* Buildings */}
+            <Route path="/admin/buildings" element={<PlaceholderPage title="Buildings" />} />
+            <Route path="/admin/buildings/new" element={<PlaceholderPage title="Add Building" />} />
+            <Route path="/admin/buildings/:id" element={<PlaceholderPage title="Building Details" />} />
+            <Route path="/admin/buildings/:id/edit" element={<PlaceholderPage title="Edit Building" />} />
 
-          {/* Units */}
-          <Route path="/admin/units" element={<PlaceholderPage title="Units" />} />
-          <Route path="/admin/units/new" element={<PlaceholderPage title="Add Unit" />} />
-          <Route path="/admin/units/:id" element={<PlaceholderPage title="Unit Details" />} />
-          <Route path="/admin/units/:id/edit" element={<PlaceholderPage title="Edit Unit" />} />
-          <Route path="/admin/units/:id/photos" element={<PlaceholderPage title="Unit Photos" />} />
+            {/* Units */}
+            <Route path="/admin/units" element={<PlaceholderPage title="Units" />} />
+            <Route path="/admin/units/new" element={<PlaceholderPage title="Add Unit" />} />
+            <Route path="/admin/units/:id" element={<PlaceholderPage title="Unit Details" />} />
+            <Route path="/admin/units/:id/edit" element={<PlaceholderPage title="Edit Unit" />} />
+            <Route path="/admin/units/:id/photos" element={<PlaceholderPage title="Unit Photos" />} />
 
-          {/* Leases */}
-          <Route path="/admin/leases" element={<PlaceholderPage title="All Leases" />} />
-          <Route path="/admin/leases/pending" element={<PlaceholderPage title="Pending Applications" />} />
-          <Route path="/admin/leases/:id" element={<PlaceholderPage title="Lease Details" />} />
-          <Route path="/admin/leases/:id/approve" element={<PlaceholderPage title="Approve Lease" />} />
+            {/* Leases */}
+            <Route path="/admin/leases" element={<PlaceholderPage title="All Leases" />} />
+            <Route path="/admin/leases/pending" element={<PlaceholderPage title="Pending Applications" />} />
+            <Route path="/admin/leases/:id" element={<PlaceholderPage title="Lease Details" />} />
+            <Route path="/admin/leases/:id/approve" element={<PlaceholderPage title="Approve Lease" />} />
 
-          {/* Payments */}
-          <Route path={ROUTES.ADMIN.PAYMENTS.LIST} element={<PlaceholderPage title="All Payments" />} />
-          <Route path={ROUTES.ADMIN.PAYMENTS.DETAIL} element={<PlaceholderPage title="Payment Details" />} />
+            {/* Payments */}
+            <Route path={ROUTES.ADMIN.PAYMENTS.INDEX} element={<PlaceholderPage title="All Payments" />} />
+            <Route path={ROUTES.ADMIN.PAYMENTS.DETAIL} element={<PlaceholderPage title="Payment Details" />} />
 
-          {/* Invoices */}
-          <Route path="/admin/invoices" element={<PlaceholderPage title="Invoices" />} />
-          <Route path="/admin/invoices/new" element={<PlaceholderPage title="Create Invoice" />} />
-          <Route path="/admin/invoices/:id" element={<PlaceholderPage title="Invoice Details" />} />
+            {/* Invoices */}
+            <Route path="/admin/invoices" element={<PlaceholderPage title="Invoices" />} />
+            <Route path="/admin/invoices/new" element={<PlaceholderPage title="Create Invoice" />} />
+            <Route path="/admin/invoices/:id" element={<PlaceholderPage title="Invoice Details" />} />
 
-          {/* Maintenance */}
-          <Route path={ROUTES.ADMIN.MAINTENANCE.LIST} element={<PlaceholderPage title="Maintenance Requests" />} />
-          <Route path={ROUTES.ADMIN.MAINTENANCE.DETAIL} element={<PlaceholderPage title="Request Details" />} />
-          <Route path="/admin/maintenance/:id/assign" element={<PlaceholderPage title="Assign Request" />} />
+            {/* Maintenance */}
+            <Route path={ROUTES.ADMIN.MAINTENANCE.INDEX} element={<PlaceholderPage title="Maintenance Requests" />} />
+            <Route path={ROUTES.ADMIN.MAINTENANCE.DETAIL} element={<PlaceholderPage title="Request Details" />} />
+            <Route path="/admin/maintenance/:id/assign" element={<PlaceholderPage title="Assign Request" />} />
 
-          {/* Tenants */}
-          <Route path="/admin/tenants" element={<PlaceholderPage title="Tenants" />} />
-          <Route path="/admin/tenants/:id" element={<PlaceholderPage title="Tenant Details" />} />
+            {/* Tenants */}
+            <Route path="/admin/tenants" element={<PlaceholderPage title="Tenants" />} />
+            <Route path="/admin/tenants/:id" element={<PlaceholderPage title="Tenant Details" />} />
+          </Route>
         </Route>
       </Route>
 

@@ -3,7 +3,10 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(bun add:*)",
-      "Bash(bun run build:*)"
+      "Bash(bun run build:*)",
+      "Bash(bun run dev)",
+      "Bash(xargs:*)",
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []

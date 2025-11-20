@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
 import { loginSchema, type LoginFormData } from '@/lib/validators/auth'
 import { ROUTES } from '@/config/routes'
 import { Button } from '@/components/ui/button'
@@ -48,7 +48,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/50 px-4 border border-red-500a">
+    <div className="flex min-h-screen items-center justify-center bg-muted/50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Login</CardTitle>
