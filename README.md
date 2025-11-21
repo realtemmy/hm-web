@@ -9,13 +9,13 @@ A platform that connects property owners (landlords) directly with tenants, remo
 ## Features
 
 ### 🏢 For Landlords (ADMIN Role)
-- **Property Management:** Create and manage properties with multiple buildings
-- **Building Management:** Add buildings with addresses and floor plans
-- **Unit Management:** Create units with photos, set rent amounts, track occupancy
-- **Lease Management:** Approve tenant applications, manage active leases
-- **Invoice & Payment Tracking:** Create invoices, track payments for all properties
-- **Maintenance Management:** View and resolve maintenance requests from tenants
-- **Tenant Management:** View current and past tenants, lease history
+- ✅ **Property Management:** Create and manage properties with multiple buildings
+- ✅ **Building Management:** Add buildings with addresses, GPS coordinates, and floor plans
+- ✅ **Unit Management:** Create units, set rent amounts, track occupancy status
+- ✅ **Lease Management:** Create and manage leases, track lease status and history
+- ✅ **Tenant Management:** View tenant profiles, lease history, and contact information
+- 🚧 **Invoice & Payment Tracking:** Create invoices, track payments for all properties
+- 🚧 **Maintenance Management:** View and resolve maintenance requests from tenants
 
 ### 🏠 For Tenants (USER Role)
 - **Browse Units:** Search and filter available units across Nigeria
@@ -45,15 +45,52 @@ A platform that connects property owners (landlords) directly with tenants, remo
 The platform follows this hierarchy:
 
 ```
-Property → Building → Unit → Lease
-                  ↓
-              Address
+Property → Building → Unit ──────┐
+              ↓                   │
+          Address                 ├─ Lease ──────┐
+                                  │              │
+User (role: USER) ────────────────┘              │
+    │                                            │
+    └─ Tenant ───────────────────────────────────┘
 ```
 
-- **Property:** Top-level entity (e.g., "Sunrise Apartments")
-- **Building:** Physical structure within a property (e.g., "Block A")
-- **Unit:** Individual rentable space with specific details
-- **Lease:** Agreement between landlord and tenant for a unit
+- **Property:** Top-level entity (e.g., "Sunrise Apartments") ✅
+- **Building:** Physical structure with address and GPS coordinates ✅
+- **Unit:** Individual rentable space (bedrooms, bathrooms, rent, status) ✅
+- **Lease:** Agreement between landlord and tenant for a specific unit ✅
+- **Tenant:** Extended user profile with emergency contacts and move dates ✅
+
+### Entity Features
+
+**Property**
+- Title, description, type (APARTMENT, HOUSE, HOSTEL)
+- Linked to multiple buildings
+- Owner relationship
+
+**Building**
+- Name, number of floors
+- Full address (street, city, state, postal code, country)
+- GPS coordinates (latitude, longitude) with geolocation button
+- Belongs to one property
+
+**Unit**
+- Unit number, floor
+- Bedrooms, bathrooms, square footage
+- Rent amount, deposit amount
+- Status: AVAILABLE, OCCUPIED, MAINTENANCE, RESERVED
+- Belongs to one property and optionally one building
+
+**Lease**
+- Start date, end date
+- Rent amount, security deposit
+- Status: ACTIVE, PENDING, TERMINATED, EXPIRED
+- Links one unit to one tenant
+
+**Tenant**
+- Linked to user account (role: USER)
+- Emergency contact
+- Move-in/move-out dates
+- Lease history
 
 ## User Roles
 
@@ -125,27 +162,50 @@ hm-web/
 ├── src/
 │   ├── assets/          # Static assets
 │   ├── components/      # React components
-│   │   ├── ui/         # shadcn/ui components (14 installed)
-│   │   ├── layout/     # Layout components
-│   │   ├── data-display/
-│   │   ├── forms/
-│   │   ├── navigation/
-│   │   └── feedback/
+│   │   ├── ui/         # shadcn/ui components (14 installed) ✅
+│   │   ├── layout/     # Layout components ✅
+│   │   ├── admin/      # AdminSidebar ✅
+│   │   └── shared/     # Shared components
 │   ├── pages/          # Page components
 │   │   ├── auth/       # Login, Register, Reset Password ✅
-│   │   ├── admin/      # Landlord pages
-│   │   ├── user/       # Tenant pages
+│   │   ├── admin/      # Landlord pages ✅
+│   │   │   ├── Dashboard.tsx           ✅
+│   │   │   ├── properties/             ✅
+│   │   │   ├── buildings/              ✅
+│   │   │   ├── units/                  ✅
+│   │   │   ├── leases/                 ✅
+│   │   │   └── tenants/                ✅
+│   │   ├── user/       # Tenant pages (upcoming)
 │   │   └── public/     # Public browse, landing page
 │   ├── hooks/
-│   │   └── queries/    # React Query hooks
+│   │   └── queries/    # React Query hooks ✅
+│   │       ├── useProperties.ts        ✅
+│   │       ├── useBuildings.ts         ✅
+│   │       ├── useUnits.ts             ✅
+│   │       ├── useLeases.ts            ✅
+│   │       └── useTenants.ts           ✅
 │   ├── contexts/       # AuthContext ✅
 │   ├── lib/
-│   │   ├── api/        # API service layer
-│   │   ├── validators/ # Zod schemas
-│   │   ├── api-client.ts ✅
-│   │   └── query-client.ts ✅
+│   │   ├── api/        # API service layer ✅
+│   │   │   ├── properties.ts           ✅
+│   │   │   ├── buildings.ts            ✅
+│   │   │   ├── units.ts                ✅
+│   │   │   ├── leases.ts               ✅
+│   │   │   └── tenants.ts              ✅
+│   │   ├── validators/ # Zod schemas ✅
+│   │   │   ├── property.ts             ✅
+│   │   │   ├── building.ts             ✅
+│   │   │   ├── unit.ts                 ✅
+│   │   │   ├── lease.ts                ✅
+│   │   │   └── tenant.ts               ✅
+│   │   ├── api-client.ts               ✅
+│   │   └── query-client.ts             ✅
 │   ├── types/          # TypeScript definitions ✅
 │   ├── config/         # App configuration ✅
+│   │   ├── routes.ts                   ✅
+│   │   └── constants.ts                ✅
+│   ├── layouts/        # Layout wrappers ✅
+│   │   └── AdminLayout.tsx             ✅
 │   └── routes/         # Route definitions ✅
 ├── tests/
 ├── e2e/
@@ -160,14 +220,15 @@ hm-web/
 - `/login`, `/register` - Authentication
 
 ### Admin (Landlords)
-- `/admin/dashboard` - Overview of properties and units
-- `/admin/properties` - Manage properties
-- `/admin/buildings` - Manage buildings within properties
-- `/admin/units` - Manage individual units with photos
-- `/admin/leases` - View and approve lease applications
-- `/admin/payments` - Track all payments
-- `/admin/invoices` - Create and manage invoices
-- `/admin/maintenance` - Handle maintenance requests
+- `/admin/dashboard` - Overview of properties and units ✅
+- `/admin/properties` - Manage properties ✅
+- `/admin/buildings` - Manage buildings within properties ✅
+- `/admin/units` - Manage individual units ✅
+- `/admin/leases` - Manage leases and tenant agreements ✅
+- `/admin/tenants` - View tenant profiles and history ✅
+- `/admin/payments` - Track all payments 🚧
+- `/admin/invoices` - Create and manage invoices 🚧
+- `/admin/maintenance` - Handle maintenance requests 🚧
 
 ### User (Tenants)
 - `/user/dashboard` - Tenant dashboard
@@ -188,63 +249,135 @@ hm-web/
 
 ## Development Status
 
-### ✅ Completed (Phase 1 & 2)
-- Authentication system (Login, Register, Password Reset)
-- API client with Axios interceptors
-- Protected and role-based route guards
-- Type definitions matching Prisma schema
-- React Query setup
-- Theme provider (dark/light mode)
-- Toast notifications
-- Form validation with Zod
+### ✅ Completed Phases
 
-### 🚧 In Progress
-- Updating types to match new schema
-- Permission configuration for two-role system
-- Constants for Nigerian states and property types
+#### **Phase 1: Authentication & Foundation**
+- ✅ JWT-based authentication (Login, Register, Password Reset)
+- ✅ API client with Axios interceptors and auto-refresh
+- ✅ Protected and role-based route guards
+- ✅ Type definitions matching Prisma schema
+- ✅ React Query setup with caching strategies
+- ✅ Theme provider (dark/light mode)
+- ✅ Toast notifications (Sonner)
+- ✅ Form validation with Zod schemas
 
-### 📋 Next Steps (Phase 3-5)
-- Admin layout with sidebar navigation
-- Property/Building/Unit CRUD operations
+#### **Phase 2A: Admin Dashboard Layout**
+- ✅ Responsive admin layout with sidebar navigation
+- ✅ Nigerian states and property types constants
+- ✅ Permission configuration for ADMIN/USER roles
+- ✅ Dashboard stats and overview page
+
+#### **Phase 2B: Property Management**
+- ✅ Property CRUD operations (Create, Read, Update, Delete)
+- ✅ Property list with search and filters
+- ✅ Property detail page with building count
+- ✅ Property form with validation
+- ✅ Type-safe API client and React Query hooks
+
+#### **Phase 2C: Building & Unit Management**
+- ✅ Buildings CRUD with address management
+- ✅ **Geolocation integration** - GPS coordinates with "Use My Location" button
+- ✅ Nigerian states dropdown in building forms
+- ✅ Buildings list filtered by property
+- ✅ Units CRUD with full details (bedrooms, bathrooms, sqft, rent)
+- ✅ **Cascading dropdowns** - Property → Building selection
+- ✅ Unit status management (AVAILABLE, OCCUPIED, MAINTENANCE, RESERVED)
+- ✅ Status color coding and badges
+- ✅ Units list with comprehensive filters
+- ✅ Integration: Property → Building → Unit hierarchy
+
+#### **Phase 2D: Tenant & Lease Management**
+- ✅ Leases CRUD with status tracking (ACTIVE, PENDING, TERMINATED, EXPIRED)
+- ✅ Lease form with unit and tenant selection
+- ✅ Lease detail page with financial stats
+- ✅ Tenant profiles with contact information
+- ✅ Tenant list with search functionality
+- ✅ Tenant detail showing all lease history
+- ✅ **Active lease display** on unit detail pages
+- ✅ **Current residence card** on tenant profiles
+- ✅ Integration: Unit ↔ Lease ↔ Tenant relationships
+
+### 🚧 In Progress (Phase 2E)
+- Payment tracking and history
+- Invoice generation and management
+- Payment gateway integration prep
+
+### 📋 Upcoming (Phase 3-5)
 - Unit photo upload and gallery
-- Lease application and approval flow
+- Maintenance request system with attachments
+- Lease application flow for tenants
 - Payment gateway integration (Paystack/Flutterwave)
-- Maintenance request system
-- Notification system
+- Notification system (in-app and email)
 - Public browse page for tenants
+- Tenant dashboard and rental history
 
 ## API Integration
 
-The frontend expects these API endpoints:
+### Implemented Endpoints ✅
 
-### Properties & Buildings
-- `GET /properties` - List properties
-- `POST /properties` - Create property
-- `GET /buildings?propertyId=` - List buildings
-- `POST /buildings` - Create building
+**Properties**
+- ✅ `GET /properties` - List with pagination and filters
+- ✅ `POST /properties` - Create property
+- ✅ `GET /properties/:id` - Property details
+- ✅ `PATCH /properties/:id` - Update property
+- ✅ `DELETE /properties/:id` - Delete property
 
-### Units
-- `GET /units?status=AVAILABLE&city=Lagos` - Browse units
-- `GET /units/:id` - Unit details
-- `POST /units` - Create unit
-- `POST /units/:id/photos` - Upload photos
+**Buildings**
+- ✅ `GET /buildings?propertyId=` - List with filters
+- ✅ `POST /buildings` - Create building (with address & GPS)
+- ✅ `GET /buildings/:id` - Building details
+- ✅ `PATCH /buildings/:id` - Update building
+- ✅ `DELETE /buildings/:id` - Delete building
 
-### Leases
-- `GET /leases` - List leases
-- `POST /leases/apply` - Apply for lease
-- `PATCH /leases/:id/approve` - Approve/reject
+**Units**
+- ✅ `GET /units?status=&propertyId=&buildingId=` - Browse with filters
+- ✅ `POST /units` - Create unit
+- ✅ `GET /units/:id` - Unit details with leases
+- ✅ `PATCH /units/:id` - Update unit
+- ✅ `DELETE /units/:id` - Delete unit
 
-### Payments & Invoices
-- `GET /payments` - Payment history
-- `POST /payments` - Make payment
-- `GET /invoices` - List invoices
-- `POST /invoices` - Create invoice
+**Leases**
+- ✅ `GET /leases?unitId=&tenantId=&status=` - List with filters
+- ✅ `POST /leases` - Create lease
+- ✅ `GET /leases/:id` - Lease details
+- ✅ `PATCH /leases/:id` - Update lease
+- ✅ `DELETE /leases/:id` - Delete lease
 
-### Maintenance
-- `GET /maintenance` - List requests
-- `POST /maintenance` - Create request
-- `PATCH /maintenance/:id/status` - Update status
-- `POST /maintenance/:id/attachments` - Upload files
+**Tenants**
+- ✅ `GET /tenants` - List tenants
+- ✅ `POST /tenants` - Create tenant profile
+- ✅ `GET /tenants/:id` - Tenant details with lease history
+- ✅ `PATCH /tenants/:id` - Update tenant
+- ✅ `DELETE /tenants/:id` - Delete tenant
+
+### Upcoming Endpoints 🚧
+
+**Payments & Invoices**
+- 🚧 `GET /payments` - Payment history
+- 🚧 `POST /payments` - Make payment
+- 🚧 `GET /invoices` - List invoices
+- 🚧 `POST /invoices` - Create invoice
+
+**Maintenance**
+- 🚧 `GET /maintenance` - List requests
+- 🚧 `POST /maintenance` - Create request
+- 🚧 `PATCH /maintenance/:id/status` - Update status
+- 🚧 `POST /maintenance/:id/attachments` - Upload files
+
+**Response Format**
+All list endpoints return paginated responses:
+```typescript
+{
+  status: "success",
+  data: {
+    items: [...],
+    totalDocs: number,
+    totalPages: number,
+    currentPage: number,
+    itemsPerPage: number
+  }
+}
+```
 
 ## Nigerian Context
 
@@ -301,11 +434,12 @@ Output will be in `dist/` directory.
 
 ## Performance
 
-- Initial bundle: ~543KB (minified)
+- Production bundle: ~713KB (minified, gzipped: ~204KB)
 - Code splitting by route
-- Lazy loading for heavy components
-- Image optimization
-- React Query caching strategy
+- React Query caching (2-5 min stale time)
+- Optimistic updates for mutations
+- Image optimization (lazy loading planned)
+- Tree-shaking and dead code elimination
 
 ## License
 

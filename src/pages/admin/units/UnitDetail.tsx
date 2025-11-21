@@ -1,6 +1,6 @@
 // Unit detail page with stats and photos
 import { useParams, useNavigate, Link } from "react-router";
-import { ArrowLeft, Edit, Trash2, Image as ImageIcon, Calendar } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Image as ImageIcon, Calendar, FileText, Plus } from "lucide-react";
 import { useUnit, useDeleteUnit } from "@/hooks/queries/useUnits";
 import { ROUTES, buildRoute } from "@/config/routes";
 import { CURRENCY } from "@/config/constants";
@@ -218,6 +218,74 @@ export const UnitDetail = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Active Lease</CardTitle>
+              <CardDescription>Current rental agreement for this unit</CardDescription>
+            </div>
+            <Link to={`${ROUTES.ADMIN.LEASES.NEW}?unitId=${unit.id}`}>
+              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+                <Plus className="h-4 w-4" />
+                Create Lease
+              </button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {unit.leases && unit.leases.length > 0 ? (
+            <div className="space-y-3">
+              {unit.leases
+                .filter((lease) => lease.status === "ACTIVE" || lease.status === "PENDING")
+                .map((lease) => (
+                  <Link
+                    key={lease.id}
+                    to={buildRoute(ROUTES.ADMIN.LEASES.DETAIL, { id: lease.id })}
+                    className="flex items-center justify-between rounded-md border border-border p-3 hover:bg-accent transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          {lease.tenant?.name || "Tenant Information"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(lease.startDate).toLocaleDateString("en-NG")} -{" "}
+                          {new Date(lease.endDate).toLocaleDateString("en-NG")}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge
+                      className={
+                        lease.status === "ACTIVE"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }
+                    >
+                      {lease.status}
+                    </Badge>
+                  </Link>
+                ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <FileText className="h-10 w-10 text-muted-foreground mb-3" />
+              <p className="text-sm font-medium">No active lease</p>
+              <p className="mt-1 text-xs text-muted-foreground mb-4">
+                This unit is currently available for lease
+              </p>
+              <Link to={`${ROUTES.ADMIN.LEASES.NEW}?unitId=${unit.id}`}>
+                <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2">
+                  <Plus className="h-4 w-4" />
+                  Create Lease
+                </button>
+              </Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

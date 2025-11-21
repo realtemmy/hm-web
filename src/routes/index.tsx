@@ -21,6 +21,11 @@ import { BuildingDetail } from '@/pages/admin/buildings/BuildingDetail'
 import { UnitsList } from '@/pages/admin/units/UnitsList'
 import { UnitForm } from '@/pages/admin/units/UnitForm'
 import { UnitDetail } from '@/pages/admin/units/UnitDetail'
+import { LeasesList } from '@/pages/admin/leases/LeasesList'
+import { LeaseForm } from '@/pages/admin/leases/LeaseForm'
+import { LeaseDetail } from '@/pages/admin/leases/LeaseDetail'
+import { TenantsList } from '@/pages/admin/tenants/TenantsList'
+import { TenantDetail } from '@/pages/admin/tenants/TenantDetail'
 
 // Placeholder components for pages not yet implemented
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -68,10 +73,10 @@ export function AppRouter() {
             <Route path={ROUTES.ADMIN.UNITS.PHOTOS} element={<PlaceholderPage title="Unit Photos" />} />
 
             {/* Leases */}
-            <Route path="/admin/leases" element={<PlaceholderPage title="All Leases" />} />
-            <Route path="/admin/leases/pending" element={<PlaceholderPage title="Pending Applications" />} />
-            <Route path="/admin/leases/:id" element={<PlaceholderPage title="Lease Details" />} />
-            <Route path="/admin/leases/:id/approve" element={<PlaceholderPage title="Approve Lease" />} />
+            <Route path={ROUTES.ADMIN.LEASES.INDEX} element={<LeasesList />} />
+            <Route path={ROUTES.ADMIN.LEASES.NEW} element={<LeaseForm />} />
+            <Route path={ROUTES.ADMIN.LEASES.DETAIL} element={<LeaseDetail />} />
+            <Route path={ROUTES.ADMIN.LEASES.EDIT} element={<LeaseForm />} />
 
             {/* Payments */}
             <Route path={ROUTES.ADMIN.PAYMENTS.INDEX} element={<PlaceholderPage title="All Payments" />} />
@@ -88,8 +93,8 @@ export function AppRouter() {
             <Route path="/admin/maintenance/:id/assign" element={<PlaceholderPage title="Assign Request" />} />
 
             {/* Tenants */}
-            <Route path="/admin/tenants" element={<PlaceholderPage title="Tenants" />} />
-            <Route path="/admin/tenants/:id" element={<PlaceholderPage title="Tenant Details" />} />
+            <Route path={ROUTES.ADMIN.TENANTS.INDEX} element={<TenantsList />} />
+            <Route path={ROUTES.ADMIN.TENANTS.DETAIL} element={<TenantDetail />} />
           </Route>
         </Route>
       </Route>
