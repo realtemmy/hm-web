@@ -26,7 +26,7 @@ interface UsePropertiesParams {
  */
 export function useProperties(params?: UsePropertiesParams) {
   return useQuery({
-    queryKey: propertyKeys.list(params),
+    queryKey: propertyKeys.list(params as Record<string, unknown>),
     queryFn: async () => {
       const response = await propertiesApi.getProperties(params)
       return response.data

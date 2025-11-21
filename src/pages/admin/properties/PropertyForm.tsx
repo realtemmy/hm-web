@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useProperty, useCreateProperty, useUpdateProperty } from '@/hooks/queries/useProperties'
 import { propertySchema } from '@/lib/validators/property'
-import { PROPERTY_TYPES, NIGERIAN_STATES } from '@/config/constants'
+import { PROPERTY_TYPES } from '@/config/constants'
 import { ROUTES } from '@/config/routes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -35,9 +35,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { toast } from 'sonner'
-import type { Property } from '@/types'
-
-type PropertyFormData = Omit<Property, 'id' | 'createdAt' | 'updatedAt' | '_count'>
+import type { PropertyFormData } from '@/lib/validators/property'
 
 export const PropertyForm = () => {
   const { id } = useParams<{ id: string }>()
@@ -47,21 +45,16 @@ export const PropertyForm = () => {
   // Fetch property data if editing
   const { data: property, isLoading: isLoadingProperty } = useProperty(id || '')
 
+
   const createMutation = useCreateProperty()
   const updateMutation = useUpdateProperty()
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
     defaultValues: {
-      name: '',
+      title: '',
       description: '',
       type: 'APARTMENT',
-      street: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      latitude: 0,
-      longitude: 0,
       ownerId: '',
     },
   })
@@ -70,15 +63,9 @@ export const PropertyForm = () => {
   useEffect(() => {
     if (property) {
       form.reset({
-        name: property.name,
+        title: property.title,
         description: property.description || '',
         type: property.type,
-        street: property.street,
-        city: property.city,
-        state: property.state,
-        postalCode: property.postalCode || '',
-        latitude: property.latitude || 0,
-        longitude: property.longitude || 0,
         ownerId: property.ownerId,
       })
     }
@@ -147,7 +134,7 @@ export const PropertyForm = () => {
             <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="name"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Property Name</FormLabel>
@@ -204,137 +191,6 @@ export const PropertyForm = () => {
                   </FormItem>
                 )}
               />
-            </CardContent>
-          </Card>
-
-          {/* Address */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Address</CardTitle>
-              <CardDescription>Property location details</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="street"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Street Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., 123 Main Street" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Lagos" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select state" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {NIGERIAN_STATES.map((state) => (
-                            <SelectItem key={state} value={state}>
-                              {state}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="postalCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Postal Code (Optional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., 100001" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Coordinates (Optional) */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Coordinates (Optional)</CardTitle>
-              <CardDescription>
-                GPS coordinates for map integration
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="latitude"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Latitude</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="any"
-                          placeholder="e.g., 6.5244"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="longitude"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Longitude</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="any"
-                          placeholder="e.g., 3.3792"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </CardContent>
           </Card>
 

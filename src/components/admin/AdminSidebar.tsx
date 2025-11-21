@@ -69,7 +69,7 @@ const navItems: NavItem[] = [
   },
   {
     label: 'Reports',
-    path: ROUTES.ADMIN.REPORTS,
+    path: ROUTES.ADMIN.REPORTS.INDEX,
     icon: BarChart3,
   },
 ]

@@ -1,19 +1,19 @@
-// Properties list page with table and filters
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router'
-import { Plus, Search, Building2, Trash2, Edit, Eye } from 'lucide-react'
-import { useProperties, useDeleteProperty } from '@/hooks/queries/useProperties'
-import { ROUTES, buildRoute } from '@/config/routes'
-import { PROPERTY_TYPES, NIGERIAN_STATES } from '@/config/constants'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+// Buildings list page with table and filters
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { Plus, Search, Building, Trash2, Edit, Eye } from "lucide-react";
+import { useBuildings, useDeleteBuilding } from "@/hooks/queries/useBuildings";
+import { useProperties } from "@/hooks/queries/useProperties";
+import { ROUTES, buildRoute } from "@/config/routes";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -21,14 +21,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,51 +38,50 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 
-export const PropertiesList = () => {
-  const navigate = useNavigate()
-  const [search, setSearch] = useState('')
-  const [typeFilter, setTypeFilter] = useState<string>()
-  const [stateFilter, setStateFilter] = useState<string>()
-  const [deleteId, setDeleteId] = useState<string | null>(null)
+export const BuildingsList = () => {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [propertyFilter, setPropertyFilter] = useState<string>();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // Fetch properties with filters
-  const { data, isLoading, error } = useProperties({
+  // Fetch buildings with filters
+  const { data, isLoading, error } = useBuildings({
     search,
-    type: typeFilter,
-    state: stateFilter,
-  })
+    propertyId: propertyFilter,
+  });
 
-  console.log("Properties: ", data);
+  // Fetch properties for filter dropdown
+  const { data: propertiesData } = useProperties();
 
-  const deleteMutation = useDeleteProperty()
+  const deleteMutation = useDeleteBuilding();
 
   const handleDelete = async () => {
-    if (!deleteId) return
+    if (!deleteId) return;
 
     try {
-      await deleteMutation.mutateAsync(deleteId)
-      setDeleteId(null)
+      await deleteMutation.mutateAsync(deleteId);
+      setDeleteId(null);
     } catch (error) {
-      console.error('Failed to delete property:', error)
+      console.error("Failed to delete building:", error);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Properties</h1>
+          <h1 className="text-2xl font-semibold">Buildings</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage your rental properties
+            Manage buildings across your properties
           </p>
         </div>
         <Button asChild>
-          <Link to={ROUTES.ADMIN.PROPERTIES.NEW}>
+          <Link to={ROUTES.ADMIN.BUILDINGS.NEW}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Property
+            Add Building
           </Link>
         </Button>
       </div>
@@ -91,41 +90,28 @@ export const PropertiesList = () => {
       <Card>
         <CardHeader>
           <CardTitle>Filters</CardTitle>
-          <CardDescription>Search and filter your properties</CardDescription>
+          <CardDescription>Search and filter your buildings</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search properties..."
+                placeholder="Search buildings..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
               />
             </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <Select value={propertyFilter} onValueChange={setPropertyFilter}>
               <SelectTrigger>
-                <SelectValue placeholder="All types" />
+                <SelectValue placeholder="All properties" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                {PROPERTY_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={stateFilter} onValueChange={setStateFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All states" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All states</SelectItem>
-                {NIGERIAN_STATES.map((state) => (
-                  <SelectItem key={state} value={state}>
-                    {state}
+                <SelectItem value="all">All properties</SelectItem>
+                {propertiesData?.items?.map((property) => (
+                  <SelectItem key={property.id} value={property.id}>
+                    {property.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -134,20 +120,22 @@ export const PropertiesList = () => {
         </CardContent>
       </Card>
 
-      {/* Properties Table */}
+      {/* Buildings Table */}
       <Card>
         <CardContent className="p-0">
           {isLoading ? (
             <div className="flex h-96 items-center justify-center">
               <div className="text-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-                <p className="text-sm text-muted-foreground">Loading properties...</p>
+                <p className="text-sm text-muted-foreground">
+                  Loading buildings...
+                </p>
               </div>
             </div>
           ) : error ? (
             <div className="flex h-96 items-center justify-center">
               <div className="text-center">
-                <p className="text-sm font-medium">Failed to load properties</p>
+                <p className="text-sm font-medium">Failed to load buildings</p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Please try again later
                 </p>
@@ -155,15 +143,15 @@ export const PropertiesList = () => {
             </div>
           ) : !data?.items || data.items.length === 0 ? (
             <div className="flex h-96 flex-col items-center justify-center">
-              <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-sm font-medium">No properties found</p>
+              <Building className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-sm font-medium">No buildings found</p>
               <p className="mt-1 text-xs text-muted-foreground mb-4">
-                Get started by adding your first property
+                Get started by adding your first building
               </p>
               <Button asChild>
-                <Link to={ROUTES.ADMIN.PROPERTIES.NEW}>
+                <Link to={ROUTES.ADMIN.BUILDINGS.NEW}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Property
+                  Add Building
                 </Link>
               </Button>
             </div>
@@ -172,54 +160,70 @@ export const PropertiesList = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-center">Buildings</TableHead>
+                  <TableHead>Property</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead className="text-center">Floors</TableHead>
                   <TableHead className="text-center">Units</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.items.map((property) => (
-                  <TableRow key={property.id}>
-                    <TableCell className="font-medium capitalize">{property.title}</TableCell>
-                    <TableCell>
-                      {PROPERTY_TYPES.find((t) => t.value === property.type)?.label || property.type}
+                {data.items.map((building) => (
+                  <TableRow key={building.id}>
+                    <TableCell className="font-medium">
+                      {building.name}
                     </TableCell>
+                    <TableCell>{building.property?.title || "—"}</TableCell>
                     <TableCell>
-                      <div>
-                        {property.description}
-                      </div>
+                      {building.address ? (
+                        <div className="text-sm text-muted-foreground">
+                          {building.address.city}, {building.address.state}
+                        </div>
+                      ) : (
+                        "—"
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
-                      {property._count?.buildings}
+                      {building.floors || "—"}
                     </TableCell>
                     <TableCell className="text-center">
-                      {property._count?.units}
+                      {building.units?.length || 0}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          title="View Property"
-                          onClick={() => navigate(buildRoute(ROUTES.ADMIN.PROPERTIES.DETAIL, { id: property.id }))}
+                          title="View Building"
+                          onClick={() =>
+                            navigate(
+                              buildRoute(ROUTES.ADMIN.BUILDINGS.DETAIL, {
+                                id: building.id,
+                              })
+                            )
+                          }
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          title="Edit Property"
-                          onClick={() => navigate(buildRoute(ROUTES.ADMIN.PROPERTIES.EDIT, { id: property.id }))}
+                          title="Edit Building"
+                          onClick={() =>
+                            navigate(
+                              buildRoute(ROUTES.ADMIN.BUILDINGS.EDIT, {
+                                id: building.id,
+                              })
+                            )
+                          }
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="destructive"
                           size="sm"
-                          title="Delete Property"
-                          onClick={() => setDeleteId(property.id)}
+                          title="Delete Building"
+                          onClick={() => setDeleteId(building.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -237,10 +241,10 @@ export const PropertiesList = () => {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Property</AlertDialogTitle>
+            <AlertDialogTitle>Delete Building</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this property? This action cannot be
-              undone and will also delete all associated buildings and units.
+              Are you sure you want to delete this building? This action cannot
+              be undone and will also delete all associated units.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -250,5 +254,5 @@ export const PropertiesList = () => {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
-}
+  );
+};

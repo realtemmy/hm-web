@@ -1,16 +1,16 @@
-// Property detail page with stats and buildings
+// Building detail page with stats and units
 import { useParams, useNavigate, Link } from "react-router";
 import {
   ArrowLeft,
   Edit,
   Trash2,
   Plus,
-  Building,
+  Home,
+  MapPin,
   Calendar,
 } from "lucide-react";
-import { useProperty, useDeleteProperty } from "@/hooks/queries/useProperties";
+import { useBuilding, useDeleteBuilding } from "@/hooks/queries/useBuildings";
 import { ROUTES, buildRoute } from "@/config/routes";
-import { PROPERTY_TYPES } from "@/config/constants";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,25 +30,24 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
-export const PropertyDetail = () => {
+export const BuildingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: property, isLoading, error } = useProperty(id || "");
-  const deleteMutation = useDeleteProperty();
+  const { data: building, isLoading, error } = useBuilding(id || "");
+  const deleteMutation = useDeleteBuilding();
 
   const handleDelete = async () => {
     if (!id) return;
 
     try {
       await deleteMutation.mutateAsync(id);
-      toast.success("The property has been deleted successfully.");
-      navigate(ROUTES.ADMIN.PROPERTIES.INDEX);
+      toast.success("The building has been deleted successfully.");
+      navigate(ROUTES.ADMIN.BUILDINGS.INDEX);
     } catch (error) {
-      toast.error("Failed to delete property. Please try again.");
+      toast.error("Failed to delete building. Please try again.");
     }
   };
 
@@ -57,32 +56,29 @@ export const PropertyDetail = () => {
       <div className="flex h-96 items-center justify-center">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">Loading property...</p>
+          <p className="text-sm text-muted-foreground">Loading building...</p>
         </div>
       </div>
     );
   }
 
-  if (error || !property) {
+  if (error || !building) {
     return (
       <div className="flex h-96 items-center justify-center">
         <div className="text-center">
-          <p className="text-sm font-medium">Property not found</p>
+          <p className="text-sm font-medium">Building not found</p>
           <p className="mt-1 text-xs text-muted-foreground mb-4">
-            The property you're looking for doesn't exist or has been deleted
+            The building you're looking for doesn't exist or has been deleted
           </p>
-          <Button onClick={() => navigate(ROUTES.ADMIN.PROPERTIES.INDEX)}>
-            Back to Properties
+          <Button onClick={() => navigate(ROUTES.ADMIN.BUILDINGS.INDEX)}>
+            Back to Buildings
           </Button>
         </div>
       </div>
     );
   }
 
-  console.log("Property: ", property)
-
-  const propertyType = PROPERTY_TYPES.find((t) => t.value === property.type);
-  const buildingsCount = property._count?.buildings || 0;
+  const unitsCount = building.units?.length || 0;
 
   return (
     <div className="space-y-6">
@@ -93,8 +89,20 @@ export const PropertyDetail = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold">{property.title}</h1>
-
+            <h1 className="text-2xl font-semibold">{building.name}</h1>
+            {building.property && (
+              <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                Property:{" "}
+                <Link
+                  to={buildRoute(ROUTES.ADMIN.PROPERTIES.DETAIL, {
+                    id: building.propertyId,
+                  })}
+                  className="text-primary hover:underline"
+                >
+                  {building.property.title}
+                </Link>
+              </p>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
@@ -102,7 +110,7 @@ export const PropertyDetail = () => {
             variant="outline"
             onClick={() =>
               navigate(
-                buildRoute(ROUTES.ADMIN.PROPERTIES.EDIT, { id: property.id })
+                buildRoute(ROUTES.ADMIN.BUILDINGS.EDIT, { id: building.id })
               )
             }
           >
@@ -118,11 +126,10 @@ export const PropertyDetail = () => {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Property</AlertDialogTitle>
+                <AlertDialogTitle>Delete Building</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this property? This action
-                  cannot be undone and will also delete all associated buildings
-                  and units.
+                  Are you sure you want to delete this building? This action
+                  cannot be undone and will also delete all associated units.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -141,66 +148,83 @@ export const PropertyDetail = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Buildings
-            </CardTitle>
-            <Building className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">{buildingsCount}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Units
             </CardTitle>
-            <Building className="h-5 w-5 text-muted-foreground" />
+            <Home className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold">{property._count?.units}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all buildings
-            </p>
+            <div className="text-2xl font-semibold">{unitsCount}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Occupancy
+              Occupied Units
             </CardTitle>
-            <Building className="h-5 w-5 text-muted-foreground" />
+            <Home className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold">—</div>
-            <p className="text-xs text-muted-foreground">
-              Overall occupancy rate
-            </p>
+            <p className="text-xs text-muted-foreground">Coming soon</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Available Units
+            </CardTitle>
+            <Home className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">—</div>
+            <p className="text-xs text-muted-foreground">Coming soon</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Property Details */}
+      {/* Building Details */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Property Information</CardTitle>
+            <CardTitle>Building Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Type</p>
-              <Badge variant="secondary" className="mt-1">
-                {propertyType?.label || property.type}
-              </Badge>
-            </div>
-
-            {property.description && (
+            {building.floors && (
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Description
+                  Floors
                 </p>
-                <p className="mt-1 text-sm">{property.description}</p>
+                <p className="mt-1 text-sm">{building.floors}</p>
+              </div>
+            )}
+
+            {building.address && (
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Address
+                </p>
+                <div className="mt-1 text-sm">
+                  <p>{building.address.street}</p>
+                  <p>
+                    {building.address.city}, {building.address.state}{" "}
+                    {building.address.postalCode}
+                  </p>
+                  <p>{building.address.country}</p>
+                </div>
+              </div>
+            )}
+
+            {building.address?.latitude && building.address?.longitude && (
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Coordinates
+                </p>
+                <p className="mt-1 text-sm">
+                  <MapPin className="inline h-3 w-3 mr-1" />
+                  {building.address.latitude}, {building.address.longitude}
+                </p>
               </div>
             )}
 
@@ -210,7 +234,7 @@ export const PropertyDetail = () => {
               </p>
               <p className="mt-1 flex items-center gap-1 text-sm">
                 <Calendar className="h-3 w-3" />
-                {new Date(property.createdAt).toLocaleDateString("en-NG", {
+                {new Date(building.createdAt).toLocaleDateString("en-NG", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -220,21 +244,20 @@ export const PropertyDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Buildings */}
+        {/* Units */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Buildings</CardTitle>
+                <CardTitle>Units</CardTitle>
                 <CardDescription>
-                  {buildingsCount}{" "}
-                  {buildingsCount === 1 ? "building" : "buildings"} in this
-                  property
+                  {unitsCount} {unitsCount === 1 ? "unit" : "units"} in this
+                  building
                 </CardDescription>
               </div>
               <Button size="sm" asChild>
                 <Link
-                  to={`${ROUTES.ADMIN.BUILDINGS.NEW}?propertyId=${property.id}`}
+                  to={`${ROUTES.ADMIN.UNITS.NEW}?buildingId=${building.id}`}
                 >
                   <Plus className="mr-2 h-4 w-4" />
                   Add
@@ -243,43 +266,27 @@ export const PropertyDetail = () => {
             </div>
           </CardHeader>
           <CardContent>
-            {buildingsCount === 0 ? (
+            {unitsCount === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Building className="h-10 w-10 text-muted-foreground mb-3" />
-                <p className="text-sm font-medium">No buildings yet</p>
+                <Home className="h-10 w-10 text-muted-foreground mb-3" />
+                <p className="text-sm font-medium">No units yet</p>
                 <p className="mt-1 text-xs text-muted-foreground mb-4">
-                  Add buildings to this property to get started
+                  Add units to this building to get started
                 </p>
                 <Button size="sm" asChild>
                   <Link
-                    to={`${ROUTES.ADMIN.BUILDINGS.NEW}?propertyId=${property.id}`}
+                    to={`${ROUTES.ADMIN.UNITS.NEW}?buildingId=${building.id}`}
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Building
+                    Add Unit
                   </Link>
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3">
-                {property.buildings?.map((building) => (
-                  <Link
-                    key={building.id}
-                    to={buildRoute(ROUTES.ADMIN.BUILDINGS.DETAIL, { id: building.id })}
-                    className="flex items-center justify-between rounded-md border border-border p-3 hover:bg-accent transition-colors"
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{building.name}</p>
-                      {building.address && (
-                        <p className="text-xs text-muted-foreground">
-                          {building.address.street}, {building.address.city}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {building.units?.length || 0} units
-                    </div>
-                  </Link>
-                ))}
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Unit list will be displayed here
+                </p>
               </div>
             )}
           </CardContent>

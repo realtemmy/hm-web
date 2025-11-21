@@ -15,6 +15,12 @@ import { AdminDashboard } from '@/pages/admin/Dashboard'
 import { PropertiesList } from '@/pages/admin/properties/PropertiesList'
 import { PropertyForm } from '@/pages/admin/properties/PropertyForm'
 import { PropertyDetail } from '@/pages/admin/properties/PropertyDetail'
+import { BuildingsList } from '@/pages/admin/buildings/BuildingsList'
+import { BuildingForm } from '@/pages/admin/buildings/BuildingForm'
+import { BuildingDetail } from '@/pages/admin/buildings/BuildingDetail'
+import { UnitsList } from '@/pages/admin/units/UnitsList'
+import { UnitForm } from '@/pages/admin/units/UnitForm'
+import { UnitDetail } from '@/pages/admin/units/UnitDetail'
 
 // Placeholder components for pages not yet implemented
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -49,17 +55,17 @@ export function AppRouter() {
             <Route path={ROUTES.ADMIN.PROPERTIES.EDIT} element={<PropertyForm />} />
 
             {/* Buildings */}
-            <Route path="/admin/buildings" element={<PlaceholderPage title="Buildings" />} />
-            <Route path="/admin/buildings/new" element={<PlaceholderPage title="Add Building" />} />
-            <Route path="/admin/buildings/:id" element={<PlaceholderPage title="Building Details" />} />
-            <Route path="/admin/buildings/:id/edit" element={<PlaceholderPage title="Edit Building" />} />
+            <Route path={ROUTES.ADMIN.BUILDINGS.INDEX} element={<BuildingsList />} />
+            <Route path={ROUTES.ADMIN.BUILDINGS.NEW} element={<BuildingForm />} />
+            <Route path={ROUTES.ADMIN.BUILDINGS.DETAIL} element={<BuildingDetail />} />
+            <Route path={ROUTES.ADMIN.BUILDINGS.EDIT} element={<BuildingForm />} />
 
             {/* Units */}
-            <Route path="/admin/units" element={<PlaceholderPage title="Units" />} />
-            <Route path="/admin/units/new" element={<PlaceholderPage title="Add Unit" />} />
-            <Route path="/admin/units/:id" element={<PlaceholderPage title="Unit Details" />} />
-            <Route path="/admin/units/:id/edit" element={<PlaceholderPage title="Edit Unit" />} />
-            <Route path="/admin/units/:id/photos" element={<PlaceholderPage title="Unit Photos" />} />
+            <Route path={ROUTES.ADMIN.UNITS.INDEX} element={<UnitsList />} />
+            <Route path={ROUTES.ADMIN.UNITS.NEW} element={<UnitForm />} />
+            <Route path={ROUTES.ADMIN.UNITS.DETAIL} element={<UnitDetail />} />
+            <Route path={ROUTES.ADMIN.UNITS.EDIT} element={<UnitForm />} />
+            <Route path={ROUTES.ADMIN.UNITS.PHOTOS} element={<PlaceholderPage title="Unit Photos" />} />
 
             {/* Leases */}
             <Route path="/admin/leases" element={<PlaceholderPage title="All Leases" />} />

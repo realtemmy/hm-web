@@ -4,7 +4,7 @@ import { z } from 'zod'
 export const unitSchema = z.object({
   unitNumber: z.string().min(1, 'Unit number is required'),
   propertyId: z.string().min(1, 'Property is required'),
-  buildingId: z.string().optional(),
+  buildingId: z.string().min(1, 'Building is required'),
   floor: z.number().optional(),
   bedrooms: z.number().optional(),
   bathrooms: z.number().optional(),
